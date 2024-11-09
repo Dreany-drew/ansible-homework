@@ -1,0 +1,25 @@
+- name: Install apache on amazon clients
+  hosts: amz-clients
+
+  tasks:
+    - name: upgrades all packages on the server if they are not of the latest available version
+      ansible.builtin.yum: # yum update -y
+        name: '*'
+        state: latest
+        use_backend: dnf4
+    - name: install apache
+      ansible.builtin.yum: # yum install -y httpd
+        name: httpd
+        state: installed
+    - name: Start service httpd, if not started # systemctl start httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started 
+    - name: Enable service httpd, and not touch the state 
+      ansible.builtin.service: # systemctl enable httpd
+        name: httpd
+        enabled: yes 
+    - name: Copy Index file to clients
+      ansible.builtin.copy:
+        src: index.html   # from controller
+        dest: /var/www/html

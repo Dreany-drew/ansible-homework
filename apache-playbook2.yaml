@@ -1,0 +1,46 @@
+- name: Install apache on ubuntu clients
+  hosts: ubuntu-clients
+  become: yes
+
+  tasks:
+    - name: upgrades all packages on the server if they are not of the latest available version
+      ansible.builtin.apt: # apt update -y
+        name: '*'
+        state: latest     
+    - name: install apache
+      ansible.builtin.apt: # apt install -y apache2
+        name: apache2
+        state: present
+    - name: Start Apache service, if not started # systemctl start apache2
+      ansible.builtin.service:
+        name: apache2
+        state: started 
+    - name: Enable Apache2 service, and not touch the state 
+      ansible.builtin.service: # systemctl enable apache2
+        name: apache2
+        enabled: yes 
+    - name: Copy Index file to clients
+      ansible.builtin.copy:
+        src: index.html   # from controller
+        dest: /var/www/html
+
+- name: Install Git on Ubuntu clients
+  hosts: ubuntu-clients  # My group of hosts in the inventory            
+
+  tasks:
+    - name: Install Git
+      ansible.builtin.apt:
+        name: git
+        state: present
+        update_cache: yes
+
+- name: DEBUG  
+  hosts: all      
+
+  tasks:
+    - name: Display my name on all hosts
+      ansible.builtin.debug:
+        msg: Andre DIBI
+
+
+
